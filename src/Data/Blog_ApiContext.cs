@@ -1,23 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Blog_Api.src.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Blog_Api.src.Entities;
 
 namespace Blog_Api.src.Data;
 
-public class Blog_ApiContext : DbContext
+public class Blog_ApiContext(DbContextOptions<Blog_ApiContext> options) : IdentityDbContext<ApplicationUser>(options)//DbContext(options)
 {
-    public Blog_ApiContext(DbContextOptions<Blog_ApiContext> options)
-        : base(options)
-    {
-    }
-
     public DbSet<Blog> Blog { get; set; } = default!;
     public DbSet<BlogPost> BlogPost { get; set; } = default!;
     public DbSet<Comment> Comment { get; set; } = default!;
-    public DbSet<User> User { get; set; } = default!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -36,7 +27,7 @@ public class Blog_ApiContext : DbContext
         modelBuilder.Entity<Blog>().HasQueryFilter(blog => blog.DeletedAt == null || blog.User.DeletedAt == null);
         modelBuilder.Entity<BlogPost>().HasQueryFilter(blogpost => blogpost.DeletedAt == null || blogpost.Blog.DeletedAt == null);
         modelBuilder.Entity<Comment>().HasQueryFilter(comment => comment.DeletedAt == null || comment.BlogPost.DeletedAt == null || comment.BlogPost.Blog.DeletedAt == null);
-        modelBuilder.Entity<User>().HasQueryFilter(user => user.DeletedAt == null);
+        modelBuilder.Entity<ApplicationUser>().HasQueryFilter(user => user.DeletedAt == null);
         #endregion
     }
 }

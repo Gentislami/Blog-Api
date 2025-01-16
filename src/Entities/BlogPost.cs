@@ -1,18 +1,28 @@
-﻿namespace Blog_Api.src.Entities
+﻿using Blog_Api.src.Dtos;
+
+namespace Blog_Api.src.Entities
 {
     public class BlogPost : AbstractEntity
     {
         public string Title { get; set; }
         public string Content { get; set; }
         public DateTime PublishedAt { get; set; }
+        public bool IsPublished { get; set; }
+        public string BlogId { get; set; }
+        public virtual Blog? Blog { get; set; }
+        public virtual ApplicationUser? User { get; set; }
+        public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
-        public int BlogId { get; set; }
+        public override bool IsUserAuthorized(string currentUserId)
+        {
+            return currentUserId == User.Id;
+        }
 
-        public Blog Blog { get; set; }
-
-        public int UserId { get; set; }
-
-        public User User { get; set; }
-        public ICollection<Comment> Comments { get; set; }
+        public override void ApplyDto(IDto dto)
+        {
+            Title = ((BlogPostDto)dto).Title;
+            Content = ((BlogPostDto)dto).Content;
+            IsPublished = ((BlogPostDto)dto).IsPublished;
+        }
     }
 }

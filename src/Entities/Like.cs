@@ -2,13 +2,12 @@
 
 namespace Blog_Api.src.Entities
 {
-    public class Comment : AbstractEntity
+    public class Like : AbstractEntity
     {
-        public string Content { get; set; }
-        public DateTime PostedAt { get; set; }
+        public virtual ApplicationUser? User { get; set; }
         public string BlogPostId { get; set; }
         public virtual BlogPost? BlogPost { get; set; }
-        public virtual ApplicationUser? User { get; set; }
+        public bool Liked { get; set; }
 
         public override bool IsUserAuthorized(string currentUserId)
         {
@@ -17,7 +16,7 @@ namespace Blog_Api.src.Entities
 
         public override void ApplyDto(IDto dto)
         {
-            Content = ((Comment)dto).Content;
+            Liked = ((LikeDto)dto).Liked;
         }
     }
 }

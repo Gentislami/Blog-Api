@@ -6,27 +6,20 @@ namespace Blog_Api.src.Repositories
 {
     public interface IBlogPostRepository : IRepository<BlogPost>
     {
-        Task<IEnumerable<BlogPost>> GetBlogPostsByBlogIdAsync(int blogId);
-        Task<IEnumerable<BlogPost>> GetBlogPostsByUserIdAsync(int userId);  // New method
+        Task<IEnumerable<BlogPost>> GetBlogPostsByBlogIdAsync(string blogId);
+        Task<IEnumerable<BlogPost>> GetBlogPostsByUserIdAsync(string userId);
     }
 
-    public class BlogPostRepository : AbstractRepository<BlogPost>, IBlogPostRepository
+    public class BlogPostRepository(Blog_ApiContext context) : AbstractRepository<BlogPost>(context), IBlogPostRepository
     {
-        public BlogPostRepository(Blog_ApiContext context) : base(context) { }
-
-        public async Task<IEnumerable<BlogPost>> GetBlogPostsByBlogIdAsync(int blogId)
+        public async Task<IEnumerable<BlogPost>> GetBlogPostsByBlogIdAsync(string blogId)
         {
-            return await _context.Set<BlogPost>()
-                                 .Where(p => p.BlogId == blogId)
-                                 .ToListAsync();
+            return await _dbSet.Where(bp => bp.BlogId == blogId).ToListAsync();
         }
 
-        // New method to get all blog posts by user
-        public async Task<IEnumerable<BlogPost>> GetBlogPostsByUserIdAsync(int userId)
+        public async Task<IEnumerable<BlogPost>> GetBlogPostsByUserIdAsync(string userId)
         {
-            return await _context.Set<BlogPost>()
-                                 .Where(p => p.UserId == userId)  // Get posts by the user
-                                 .ToListAsync();
+            return await _dbSet.Where(bp => bp.User.Id == userId).ToListAsync();
         }
     }
 }

@@ -6,21 +6,19 @@ namespace Blog_Api.src.Repositories
 {
     public interface ICommentRepository : IRepository<Comment>
     {
-        Task<IEnumerable<Comment>> GetByBlogPostIdAsync(int blogPostId);
-        Task<IEnumerable<Comment>> GetByUserIdAsync(int userId); // Add this method
+        Task<IEnumerable<Comment>> GetByBlogPostIdAsync(string blogPostId);
+        Task<IEnumerable<Comment>> GetByUserIdAsync(string userId);
     }
-    public class CommentRepository : AbstractRepository<Comment>, ICommentRepository
+    public class CommentRepository(Blog_ApiContext context) : AbstractRepository<Comment>(context), ICommentRepository
     {
-        public CommentRepository(Blog_ApiContext context) : base(context) { }
-
-        public async Task<IEnumerable<Comment>> GetByBlogPostIdAsync(int blogPostId)
+        public async Task<IEnumerable<Comment>> GetByBlogPostIdAsync(string blogPostId)
         {
-            return await _context.Set<Comment>().Where(c => c.BlogPostId == blogPostId).ToListAsync();
+            return await _dbSet.Where(c => c.BlogPostId == blogPostId).ToListAsync();
         }
 
-        public async Task<IEnumerable<Comment>> GetByUserIdAsync(int userId)
+        public async Task<IEnumerable<Comment>> GetByUserIdAsync(string userId)
         {
-            return await _context.Set<Comment>().Where(c => c.UserId == userId).ToListAsync();
+            return await _dbSet.Where(c => c.User.Id == userId).ToListAsync();
         }
     }
 

@@ -4,19 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Blog_Api.src.Repositories
 {
-    public interface IUserRepository : IRepository<User>
+    public interface IUserRepository : IRepository<ApplicationUser>
     {
-        Task<User> GetByEmailAsync(string email);
+        Task<ApplicationUser?> GetByEmailAsync(string email);
     }
 
-    public class UserRepository : AbstractRepository<User>, IUserRepository
+    public class UserRepository(Blog_ApiContext context) : AbstractRepository<ApplicationUser>(context), IUserRepository
     {
-        public UserRepository(Blog_ApiContext context) : base(context) { }
-
-        public async Task<User?> GetByEmailAsync(string email)
+        public async Task<ApplicationUser?> GetByEmailAsync(string email)
         {
-            return await _context.Set<User>()
-                                 .FirstOrDefaultAsync(u => u.Email == email);
+            return await _dbSet.FirstOrDefaultAsync(u => u.Email == email);
         }
     }
 }
