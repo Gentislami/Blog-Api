@@ -8,7 +8,6 @@ namespace Blog_Api.src.Entities
     {
         public string Name { get; set; }
         public string Surname { get; set; }
-        public string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }
         public DateTime? DeletedAt { get; set; }
@@ -23,10 +22,10 @@ namespace Blog_Api.src.Entities
 
         public void ApplyDto(IDto dto)
         {
-            UserName = ((UserDto)dto).UserName;
-            Email = ((UserDto)dto).Email;
-            Name = ((UserDto)dto).Name;
-            Surname = ((UserDto)dto).Surname;
+            UserName = ((ApplicationUserDto)dto).UserName;
+            Email = ((ApplicationUserDto)dto).Email;
+            Name = ((ApplicationUserDto)dto).Name;
+            Surname = ((ApplicationUserDto)dto).Surname;
         }
     }
 }

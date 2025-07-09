@@ -1,8 +1,11 @@
 ﻿
 using Blog_Api.src.Data;
+using Blog_Api.src.Entities;
 using Blog_Api.src.Repositories;
 using Blog_Api.src.Services.Entity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -20,7 +23,11 @@ namespace Blog_Api
             RegisterRepositories(builder);
             RegisterServices(builder);
 
-            builder.Services.AddCors();
+            #region Security
+
+            #region Authentication
+
+            builder.Services.AddIdentityApiEndpoints<ApplicationUser>().AddEntityFrameworkStores<Blog_ApiContext>();
 
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
@@ -33,14 +40,35 @@ namespace Blog_Api
                             ValidateAudience = true,
                             ValidateLifetime = true,
                             ValidateIssuerSigningKey = true,
-                            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-                            ValidAudience = builder.Configuration["JwtSettings:Audience"],
-                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
+                            ValidIssuer = builder.Configuration["Authentication:Jwt:Issuer"],
+                            ValidAudience = builder.Configuration["Authentication:Jwt:Audience"],
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:Jwt:SecretKey"]))
                         };
                     });
 
+            #endregion
+
+            #region CORS
+
+            string corsAllowedOrigins = builder.Configuration["Cors:AllowedOrigins"]!;
+            string corsAllowedMethods = builder.Configuration["Cors:AllowedMethods"]!;
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    builder.WithOrigins(corsAllowedOrigins)
+                           .WithMethods(corsAllowedMethods)
+                           .AllowAnyHeader();
+                });
+            });
+
+            #endregion
 
             builder.Services.AddAuthorization();
+
+
+            #endregion
 
             builder.Services.AddControllers().AddJsonOptions(
                 options =>
@@ -62,9 +90,11 @@ namespace Blog_Api
 
             app.UseHttpsRedirection();
 
-            app.UseCors();
+            app.UseCors("AllowSpecificOrigin");
             app.UseAuthentication();
             app.UseAuthorization();
+            app.MapIdentityApi<ApplicationUser>();
+
 
 
             app.MapControllers();
@@ -77,12 +107,12 @@ namespace Blog_Api
             builder.Services.AddScoped<IBlogRepository, BlogRepository>();
             builder.Services.AddScoped<IBlogPostRepository, BlogPostRepository>();
             builder.Services.AddScoped<ICommentRepository, CommentRepository>();
-            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IApplicationUserRepository, ApplicationUserRepository>();
         }
 
         private static void RegisterServices(WebApplicationBuilder builder)
         {
-            builder.Services.AddScoped<IUserEntityService, UserEntityService>();
+            builder.Services.AddScoped<IApplicationUserEntityService, ApplicationUserEntityService>();
             builder.Services.AddScoped<IBlogEntityService, BlogEntityService>();
             builder.Services.AddScoped<IBlogPostEntityService, BlogPostEntityService>();
             builder.Services.AddScoped<ICommentEntityService, CommentEntityService>();

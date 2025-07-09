@@ -1,4 +1,6 @@
-﻿using Blog_Api.src.Dtos;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Blog_Api.src.Dtos;
 
 namespace Blog_Api.src.Entities
 {
@@ -14,6 +16,8 @@ namespace Blog_Api.src.Entities
 
     public abstract class AbstractEntity : IEntity
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
         public string Id { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? UpdatedAt { get; set; }

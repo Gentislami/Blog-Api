@@ -13,6 +13,7 @@ public interface IEntityService<TEntity, TRepository> where TEntity : class, IEn
     Task<int> UpdateAsync(TEntity entity);
     Task<int> DeleteAsync(string id);
     bool Exists(string id);
+    TEntity createNewObject();
 }
 
 public abstract class AbstractEntityService<TEntity, TRepository>(TRepository repository) : IEntityService<TEntity, TRepository> where TEntity : class, IEntity where TRepository : class, IRepository<TEntity>
@@ -58,5 +59,10 @@ public abstract class AbstractEntityService<TEntity, TRepository>(TRepository re
     public bool Exists(string id)
     {
         return _repository.Exists(id);
+    }
+
+    public virtual TEntity createNewObject()
+    {
+        throw new NotImplementedException(); // This is a fun little thing I like to call 'laziness'.
     }
 }

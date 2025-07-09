@@ -9,6 +9,7 @@ using System.Security.Claims;
 
 namespace Blog_Api.src.Api.Controllers
 {
+    [Authorize]
     public abstract class AbstractController<TEntity, TRepository, TEntityService, TDto>(TEntityService entityService) : ControllerBase where TEntity : class, IEntity where TRepository : class, IRepository<TEntity> where TEntityService : class, IEntityService<TEntity, TRepository> where TDto : class, IDto
     {
         protected readonly TEntityService _entityService = entityService;
@@ -20,14 +21,9 @@ namespace Blog_Api.src.Api.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<TEntity>> Get(string id)
+        public async Task<ActionResult<TEntity?>> Get(string id)
         {
             var TEntity = await _entityService.GetByIdAsync(id);
-
-            if (TEntity == null)
-            {
-                return NotFound();
-            }
 
             return TEntity;
         }
@@ -73,11 +69,21 @@ namespace Blog_Api.src.Api.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<ActionResult<TEntity>> Post(TEntity TEntity)
+        public async Task<ActionResult<TEntity>> Post(TDto TDto)
         {
-            await _entityService.CreateAsync(TEntity);
-
-            return CreatedAtAction("Get", new { id = TEntity.Id }, TEntity);
+            try
+            {
+                TEntity entity = _entityService.createNewObject();
+                entity.ApplyDto(TDto);
+                await _entityService.CreateAsync(entity);
+                return CreatedAtAction("Get", new { id = entity.Id }, entity);
+            }
+            catch (DbUpdateConcurrencyException) {
+                return BadRequest();
+            }
+            catch (NotImplementedException) { // lol I won't even put this in the README and reading this per se is a nice way to see if someone is paying attention
+                return BadRequest();
+            }
         }
 
         [HttpDelete("{id}")]

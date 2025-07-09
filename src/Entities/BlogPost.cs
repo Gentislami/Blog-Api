@@ -10,6 +10,7 @@ namespace Blog_Api.src.Entities
         public bool IsPublished { get; set; }
         public string BlogId { get; set; }
         public virtual Blog? Blog { get; set; }
+        public string UserId { get; set; }
         public virtual ApplicationUser? User { get; set; }
         public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
@@ -23,6 +24,8 @@ namespace Blog_Api.src.Entities
             Title = ((BlogPostDto)dto).Title;
             Content = ((BlogPostDto)dto).Content;
             IsPublished = ((BlogPostDto)dto).IsPublished;
+            UserId = ((BlogPostDto)dto).UserId;
+            BlogId = ((BlogPostDto)dto).BlogId;
         }
     }
 }
